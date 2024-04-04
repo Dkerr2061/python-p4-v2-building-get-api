@@ -20,6 +20,32 @@ def index():
     return "Index for Game/Review/User API"
 
 # start building your API here
+@app.route('/games')
+def games():
+
+    games =[game.to_dict() for game in Game.query.all()]
+        
+    status = 200
+    return make_response(games, status)
+
+@app.route('/games/<int:id>')
+def game_by_id(id):
+    game = db.session.get(Game, id)
+
+    if game:
+        body = game.to_dict(rules=('-reviews.game', ))
+        status = 200
+    else:
+        body = {"message": f"Game {id} was not found."}
+        status = 404
+    return make_response(body, status)
+
+@app.route('/games/users/<int:id>')
+def game_users_by_id(id):
+    game = db.session.get(Game, id)
+    users = [user.to_dict(rules=('-reviews',)) for user in game.users]
+
+    return make_response(users, 200)
 
 
 if __name__ == '__main__':
